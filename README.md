@@ -1,7 +1,7 @@
 # NDimArray
 Provides a generic wrapper around the Array object, along with indexed enumeration.
 
-See ![the wiki](https://github.com/SpencerAWill/NDimArray/wiki/SpatialEnumerator) for documentation.
+See ![the wiki](https://github.com/SpencerAWill/NDimArray/wiki/SpatialEnumerator) for (**unfinished**)documentation.
 
 ### Creating a new 2×2×2 array of strings:
 ```C#
@@ -17,8 +17,9 @@ array[1,1,0] = "g";
 array[1,1,1] = "h";
 ```
 
-This is internally:
+This would otherwise be known as:
 ```C#
+int[] array = new int[]
 {
   {
     { "a", "b" },
