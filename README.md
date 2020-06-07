@@ -36,7 +36,7 @@ int[] array = new int[]
 ```C#
 array.Enumerate(x => Console.WriteLine(x));
 ```
-Will return:
+Will show:
 ```C#
 a
 b
@@ -50,16 +50,16 @@ h
 
 ### Advanced enumeration through this array
 ```C#
-//These parameters define a backwards enumeration through this array.
+//These parameters define a REVERSE enumeration through this array.
 
 array.EnumerateCustom(
   SpatialEnumerator<string>.UpperBoundaries(array), //index of the last item [1,1,1]
   SpatialEnumerator<string>.LowerBoundaries(array), //index of the first item [1,1,1]
-  SpatialEnumerator<string>.GetStandardPriorityList(array.Rank), //default depth-column-row enumeration (feel free to change the ordering of these elements around)
+  SpatialEnumerator<string>.GetStandardPriorityList(array.Rank), //default depth-column-row enumeration (feel free to experiment with distinct priority lists
   (index, item) => Console.WriteLine($[{index.Join(", ")]}: {item}) //action on each item
   );
 ```
-Will return:
+Will show:
 ```C#
 [1, 1, 1]: h
 [1, 1, 0]: g
