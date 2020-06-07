@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30021.99
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDimArray", "NDimArray\NDimArray.csproj", "{9B1A3860-862A-419A-B3B8-9AB646AAAF91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDimArrayTests", "NDimArrayTests\NDimArrayTests.csproj", "{166312D7-44AE-4D08-B767-C9C8466F431D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9B1A3860-862A-419A-B3B8-9AB646AAAF91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B1A3860-862A-419A-B3B8-9AB646AAAF91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B1A3860-862A-419A-B3B8-9AB646AAAF91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B1A3860-862A-419A-B3B8-9AB646AAAF91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{166312D7-44AE-4D08-B767-C9C8466F431D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{166312D7-44AE-4D08-B767-C9C8466F431D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{166312D7-44AE-4D08-B767-C9C8466F431D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{166312D7-44AE-4D08-B767-C9C8466F431D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EC19EB80-4CA1-44C0-A0E3-E4F3AACF1CD6}
+	EndGlobalSection
+EndGlobal
