@@ -3,9 +3,9 @@ Provides a generic wrapper around the Array object, along with indexed enumerati
 
 See ![the wiki](https://github.com/SpencerAWill/NDimArray/wiki) for (**unfinished**) documentation.
 
----
+
 **I have yet to push unit tests so take this project with a grain of salt.**
----
+
 
 ### Creating a new 2×2×2 array of strings:
 ```C#
