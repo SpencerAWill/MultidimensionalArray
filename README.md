@@ -19,7 +19,7 @@ array[1,1,1] = "h";
 
 This would otherwise be known as:
 ```C#
-int[] array = new int[]
+var array = new int[,,]
 {
   {
     { "a", "b" },
