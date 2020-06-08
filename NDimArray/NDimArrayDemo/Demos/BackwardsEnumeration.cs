@@ -14,6 +14,11 @@ namespace NDimArrayDemo.Demos
             get { return _array; }
         }
 
+        public BackwardsEnumeration(NDimArray<T> array)
+        {
+            _array = array;
+        }
+
         public void Run(Action<int[], T> action)
         {
             Array.Enumerate(
