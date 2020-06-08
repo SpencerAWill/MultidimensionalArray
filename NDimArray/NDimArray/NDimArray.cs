@@ -109,7 +109,6 @@ namespace NDimArray
                 action(item);
             }
         }
-
         public void Enumerate(Action<int[], T> action)
         {
             foreach (var item in (IEnumerable<Tuple<int[], T>>)this)
@@ -118,7 +117,7 @@ namespace NDimArray
             }
         }
 
-        public void EnumerateCustom(int[] start, int[] end, int[] dimPriorities, Action<int[], T> action)
+        public void Enumerate(int[] start, int[] end, int[] dimPriorities, Action<int[], T> action)
         {
             using (IEnumerator<Tuple<int[], T>> enumer = new SpatialEnumerator<T>(array, start, end, dimPriorities))
             {
@@ -129,28 +128,30 @@ namespace NDimArray
                 }
             }
         }
+        public void Enumerate(int[] start, int[] end, int[] dimPriorities, Action<T> action) =>
+            Enumerate(start, end, dimPriorities, (index, item) => action(item));
 
-        public void EnumerateCustom(int[] start, int[] end, int[] dimPriorities, Action<T> action)
+        public void Enumerate(int[] start, int[] end, Action<int[], T> action) => 
+            Enumerate(start, end, SpatialEnumerator<T>.GetStandardPriorityList(Rank), action);
+        public void Enumerate(int[] start, int[] end, Action<T> action) =>
+            Enumerate(start, end, (index, item) => action(item));
+        #endregion
+
+        #region Methods
+        public int GetLowerBound(int dimension)
         {
-            EnumerateCustom(start, end, dimPriorities, (index, item) => action(item));
+            return array.GetLowerBound(dimension);
         }
 
-        public void EnumerateFrom(int[] start, int[] end, Action<int[], T> action) =>
-            EnumerateCustom(start, end, SpatialEnumerator<T>.GetStandardPriorityList(array.Rank), action);
+        public int GetUpperBound(int dimension)
+        {
+            return array.GetUpperBound(dimension);
+        }
 
-        public void EnumerateFrom(int[] start, int[] end, Action<T> action) =>
-            EnumerateFrom(start, end, (index, item) => action(item));
-        public void EnumerateFrom(int[] start, Action<int[], T> action) =>
-            EnumerateFrom(start, SpatialEnumerator<T>.UpperBoundaries(array), (index, item) => action(index, item));
-
-        public void EnumerateFrom(int[] start, Action<T> action) =>
-            EnumerateFrom(start, (index, item) => action(item));
-
-        public void EnumerateTo(int[] end, Action<int[], T> action) =>
-            EnumerateCustom(SpatialEnumerator<T>.LowerBoundaries(array), end, SpatialEnumerator<T>.GetStandardPriorityList(array.Rank), action);
-
-        public void EnumerateTo(int[] end, Action<T> action) =>
-            EnumerateTo(end, (index, item) => action(item));
+        public int[] GetStandardEnumerationPriorities()
+        {
+            return SpatialEnumerator<T>.GetStandardPriorityList(Rank);
+        }
         #endregion
     }
 }
