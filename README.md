@@ -70,3 +70,22 @@ Will show:
 [0, 0, 1]: b
 [0, 0, 0]: a
 ```
+
+### Enumeration excluding a dimension
+```C#
+//With point enumeration, you can exclude a dimension from enumeration. I.e. enumerate through a 2D plane in a 3D array
+
+array.Enumerate(
+  new int[] { 0, 0, 0 },
+  new int[] { 1, 0, 1 },
+  new int[] { 2, 1, 0 }, (in this case, because we are not moving through dimension 1, this functions more like a { 2, 0 } priority list)
+  (index, item) => { Console.WriteLine($"[{String.Join(", ", index)}]: { item }"); } //action on each item
+);
+```
+Will show:
+```C#
+[0, 0, 0]: "a"
+[0, 0, 1]: "b"
+[1, 0, 0]: "e"
+[1, 0, 1]: "f"
+```
