@@ -78,7 +78,7 @@ Will show:
 array.Enumerate(
   new int[] { 0, 0, 0 },
   new int[] { 1, 0, 1 },
-  new int[] { 2, 1, 0 }, (in this case, because we are not moving through dimension 1, this functions more like a { 2, 0 } priority list)
+  new int[] { 2, 1, 0 }, //in this case, because we are not going to moving through dimension 1, this functions more like a { 2, 0 } priority list)
   (index, item) => { Console.WriteLine($"[{String.Join(", ", index)}]: { item }"); } //action on each item
 );
 ```
