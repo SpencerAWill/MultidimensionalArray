@@ -47,11 +47,13 @@ namespace NDimArray
             else
                 throw new ArgumentOutOfRangeException("lengths", "Every dimension must be >= 0.");
         }
-        public NDimArray(params int[] dimensions) : this(dimensions, (int[])Array.CreateInstance(typeof(int), dimensions.Length)) { }
+        public NDimArray(params int[] lengths) : this(lengths, (int[])Array.CreateInstance(typeof(int), lengths.Length)) { }
         public NDimArray(Array array)
         {
-            if (array != null)
-                this.array = array;
+            if (array == null)
+                throw new ArgumentNullException("array", "array was null");
+            
+            this.array = array;
         }
         public NDimArray(T[] array) : this((Array)array) { }
         #endregion
