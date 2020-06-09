@@ -66,7 +66,7 @@ Will show:
 [0, 0, 0]: a
 ```
 
-### Enumeration excluding a dimension (eg. 2D enumeration in a 3D array OR 1D enumeration in a 2D array)
+### Enumeration excluding a dimension (eg. 2D enumeration in a 3D array, 1D enumeration in a 2D array)
 ```C#
 //With point enumeration, you can exclude a dimension from enumeration. I.e. enumerate through a 2D plane in a 3D array
 
@@ -83,6 +83,23 @@ Will show:
 [0, 0, 1]: "b"
 [1, 0, 0]: "e"
 [1, 0, 1]: "f"
+```
+
+### Enumeration excluding ANY number of dimensions (eg. 1D enumeration in a 3D array)
+```C#
+//With point enumeration, you can exclude a dimension from enumeration. I.e. enumerate through a 1D segment in a 3D array
+
+array.Enumerate(
+  new int[] { 0, 0, 0 }, 
+  new int[] { 1, 0, 0 }, //notice the only dimension that will change is the 0th dimension
+  new int[] { 2, 1, 0 }, //this list now only functions like a single element { 0 } because the 1st and 2nd dimension are excluded. 
+  (index, item) => { Console.WriteLine($"[{String.Join(", ", index)}]: { item }"); } //action on each item
+);
+```
+Will show:
+```C#
+[0, 0, 0]: "a"
+[1, 0, 0]: "e"
 ```
 
 ### Enumeration between any 2 points
