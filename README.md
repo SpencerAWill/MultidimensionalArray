@@ -21,21 +21,6 @@ array[1,1,0] = "g";
 array[1,1,1] = "h";
 ```
 
-This would otherwise be known as:
-```C#
-var array = new int[,,]
-{
-  {
-    { "a", "b" },
-    { "c", "d" }
-  },
-  {
-    { "e", "f" },
-    { "g", "h" }
-  }
-}
-```
-
 ### Regular enumeration through this array:
 ```C#
 array.Enumerate(x => Console.WriteLine(x));
