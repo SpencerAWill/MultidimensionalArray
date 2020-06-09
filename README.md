@@ -52,6 +52,7 @@ g
 h
 ```
 
+
 ### Advanced enumeration through this array
 ```C#
 //These parameters define a REVERSE enumeration through this array.
@@ -93,3 +94,53 @@ Will show:
 [1, 0, 0]: "e"
 [1, 0, 1]: "f"
 ```
+
+### Enumeration between any 2 points
+```C#
+var array = new NDimArray<string>(3, 3, 3); 
+
+//assume we now fill all 27 elements a -> z then '!' as the 27th element
+
+var start = new int[] { 0, 1, 1 } //this puts us in the central element of the top of the cube
+var end = new int[] { 2, 2, 0 }
+var priorities = new int[] { 1, 2, 0 } //each element must be unique
+
+//It is beneficial to visualize this array as a cube of side length 3.
+//It is also beneficial to visualize the origin  [0, 0, 0] of the cube as the front top left of the cube, with dimension 0 extending down, dimension 1 extending right, and dimension 2 extending into the page.
+/*
+ *         2
+ *        /
+ *       /--> o
+ *      /    ^
+ *     .___ _/_ ___ 1
+ *     |         |
+ *     |         V
+ *     | ------> x
+ *     0
+ *
+ * where 'o' is start
+ * and 'x' is end
+*/
+
+array.Enumerate(
+  start
+  end
+  priorities
+  x => Console.WriteLine(x)
+  );
+```
+
+Will return:
+```C#
+e
+h
+d
+g
+n
+q
+m
+p
+w
+z
+v
+y
