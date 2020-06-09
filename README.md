@@ -38,7 +38,12 @@ h
 ```
 
 
-### Advanced enumeration through this array
+## Advanced enumeration
+
+Using the overloaded `Enumerate` function, it is possible to enumerate between any 2 indices in the array.
+The following are some examples of this:
+
+### Reverse Enumeration
 ```C#
 //These parameters define a REVERSE enumeration through this array.
 
@@ -61,7 +66,7 @@ Will show:
 [0, 0, 0]: a
 ```
 
-### Enumeration excluding a dimension
+### Enumeration excluding a dimension (eg. 2D enumeration in a 3D array OR 1D enumeration in a 2D array)
 ```C#
 //With point enumeration, you can exclude a dimension from enumeration. I.e. enumerate through a 2D plane in a 3D array
 
