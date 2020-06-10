@@ -1,7 +1,13 @@
 # NDimArray
 Provides a generic wrapper around the Array object, along with indexed enumeration.
 
-See ![the wiki](https://github.com/SpencerAWill/NDimArray/wiki) for (**unfinished**) documentation.
+:newspaper:  [Wiki/Documentation](https://github.com/SpencerAWill/NDimArray/wiki)  :newspaper:<br>
+
+
+:package:  Find the latest NuGet package [here](https://github.com/SpencerAWill/NDimArray/packages)  :package:
+
+
+:heavy_exclamation_mark:  [Issue template](https://github.com/SpencerAWill/NDimArray/tree/master/.github/ISSUE_TEMPLATE)  :heavy_exclamation_mark:
 
 ## Installation
 
