@@ -4,8 +4,9 @@ Provides a generic wrapper around the Array object, along with indexed enumerati
 See ![the wiki](https://github.com/SpencerAWill/NDimArray/wiki) for (**unfinished**) documentation.
 
 
-**I have yet to push unit tests so take this project with a grain of salt.**
 **I will be releasing a NuGet package of this as soon as I finish basic testing**
+
+**I have started releasing Unit Tests [here](./NDimArray/NDimArrayTests)
 
 
 ### Creating a new 2×2×2 array of strings:
