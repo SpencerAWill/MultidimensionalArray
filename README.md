@@ -6,7 +6,7 @@ See ![the wiki](https://github.com/SpencerAWill/NDimArray/wiki) for (**unfinishe
 
 **I will be releasing a NuGet package of this as soon as I finish basic testing**
 
-**I have started releasing Unit Tests [here](./NDimArray/NDimArrayTests)
+**I have started releasing Unit Tests [here](./NDimArray/NDimArrayTests)**
 
 
 ### Creating a new 2×2×2 array of strings:
