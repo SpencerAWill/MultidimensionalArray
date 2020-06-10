@@ -50,9 +50,9 @@ namespace NDimArray
             Reset();
         }
 
-        public SpatialEnumerator(Array array, int[] startIndex, int[] endIndex) : this(array, startIndex, endIndex, GetStandardPriorityList(array.Rank)) { }
+        public SpatialEnumerator(Array array, int[] startIndex, int[] endIndex) : this(array, startIndex, endIndex, NDimArray.GetStandardEnumerationPriorities(array.Rank)) { }
 
-        public SpatialEnumerator(Array array) : this(array, LowerBoundaries(array), UpperBoundaries(array)) { }
+        public SpatialEnumerator(Array array) : this(array, array.GetLowerBoundaries(), array.GetUpperBoundaries()) { }
 
         public void Reset()
         {
@@ -110,16 +110,6 @@ namespace NDimArray
             }
 
             return array;
-        }
-
-        public static int[] LowerBoundaries(Array a)
-        {
-            return ForEachDim(a, i => a.GetLowerBound(i));
-        }
-
-        public static int[] UpperBoundaries(Array a)
-        {
-            return ForEachDim(a, i => a.GetUpperBound(i));
         }
 
         /// <param name="func">function that takes in a dimension index</param>

@@ -136,6 +136,10 @@ namespace NDimArray
             }
         }
 
+        #region DEPRECATED. TODO: REMOVE THESE
+        /// <summary>
+        /// Deprecated. Please use Enumerate(EnumerationPath path, Action<int[], T> action).
+        /// </summary>
         public void Enumerate(int[] start, int[] end, int[] dimPriorities, Action<int[], T> action)
         {
             using (IEnumerator<Tuple<int[], T>> enumer = new SpatialEnumerator<T>(array, start, end, dimPriorities))
@@ -147,13 +151,38 @@ namespace NDimArray
                 }
             }
         }
+        /// <summary>
+        /// Deprecated. Please use Enumerate(EnumerationPath path, Action<T> action).
+        /// </summary>
         public void Enumerate(int[] start, int[] end, int[] dimPriorities, Action<T> action) =>
             Enumerate(start, end, dimPriorities, (index, item) => action(item));
 
+        /// <summary>
+        /// Deprecated. Please use Enumerate(EnumerationPath path, Action<int[], T> action).
+        /// </summary>
         public void Enumerate(int[] start, int[] end, Action<int[], T> action) => 
-            Enumerate(start, end, SpatialEnumerator<T>.GetStandardPriorityList(Rank), action);
+            Enumerate(start, end, NDimArray.GetStandardEnumerationPriorities(Rank), action);
+        /// <summary>
+        /// Deprecated. Please use Enumerate(EnumerationPath path, Action<int[], T> action).
+        /// </summary>
         public void Enumerate(int[] start, int[] end, Action<T> action) =>
             Enumerate(start, end, (index, item) => action(item));
+        #endregion
+
+        public void Enumerate(EnumerationPath path, Action<int[], T> action)
+        {
+            using (IEnumerator<Tuple<int[], T>> enumer = new SpatialEnumerator<T>(array, path.Start, path.End, path.DimEnumerationPriorities))
+            {
+                while (enumer.MoveNext())
+                {
+                    var tup = enumer.Current;
+                    action(tup.Item1, tup.Item2);
+                }
+            }
+        }
+
+        public void Enumerate(EnumerationPath path, Action<T> action) =>
+            Enumerate(path, (index, item) => action(item));
         #endregion
 
         #region Methods
@@ -161,15 +190,19 @@ namespace NDimArray
         {
             return array.GetLowerBound(dimension);
         }
+        public int[] GetLowerBoundaries() =>
+            array.GetLowerBoundaries();
 
         public int GetUpperBound(int dimension)
         {
             return array.GetUpperBound(dimension);
         }
+        public int[] GetUpperBoundaries() =>
+            array.GetUpperBoundaries();
 
         public int[] GetStandardEnumerationPriorities()
         {
-            return SpatialEnumerator<T>.GetStandardPriorityList(Rank);
+            return NDimArray.GetStandardEnumerationPriorities(Rank);
         }
         #endregion
 
@@ -230,8 +263,8 @@ namespace NDimArray
         public static void Fill(NDimArray<T> array, Func<int[], T, T> fillRule) =>
             Fill(
                 array,
-                SpatialEnumerator<T>.LowerBoundaries(array.array),
-                SpatialEnumerator<T>.UpperBoundaries(array.array),
+                array.GetLowerBoundaries(),
+                array.GetUpperBoundaries(),
                 array.GetStandardEnumerationPriorities(),
                 fillRule);
 
@@ -240,7 +273,24 @@ namespace NDimArray
 
         public static NDimArray<T> Sub(NDimArray<T> array, int[] start, int[] end, bool preserveIndices = false) =>
             throw new NotImplementedException();
-
         #endregion
+    }
+
+    public static class NDimArray
+    {
+        public static int[] GetStandardEnumerationPriorities(int rank)
+        {
+            if (rank < 1)
+                throw new ArgumentOutOfRangeException("rank", "rank must be at least 1.");
+
+            int[] array = new int[rank];
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                array[i] = rank - i - 1;
+            }
+
+            return array;
+        }
     }
 }
