@@ -99,7 +99,7 @@ namespace NDimArray
 
             for (int i = 0; i < indices.Length; i++)
             {
-                if (indices[i] < array.GetLowerBound(i))
+                if (indices[i] < array.GetLowerBound(i) || indices[i] > array.GetUpperBound(i))
                     return false;
                 else
                     continue;
