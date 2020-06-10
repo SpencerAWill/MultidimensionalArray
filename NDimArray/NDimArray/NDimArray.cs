@@ -41,21 +41,37 @@ namespace NDimArray
                 throw new ArgumentNullException("lengths", "dimensions array is null");
             if (lowerBounds == null)
                 throw new ArgumentNullException("lowerBounds", "lowerBounds array is null");
+            if (lengths.Length < 1)
+                throw new ArgumentException("lengths", "lengths must have at least 1 element");
+            if (lowerBounds.Length < 1)
+                throw new ArgumentException("lowerBounds", "lowerBounds must have at least 1 element");
+
+            if (lengths.Length != lowerBounds.Length)
+                throw new ArgumentException("lowerBounds", "length of lowerBounds must be equal to the length of lengths");
 
             if (ValidDimensions(lengths))
                 array = Array.CreateInstance(typeof(T), lengths, lowerBounds);
             else
-                throw new ArgumentOutOfRangeException("lengths", "Every dimension must be >= 0.");
+                throw new ArgumentOutOfRangeException("lengths", "Every length must be > 0.");
         }
-        public NDimArray(params int[] lengths) : this(lengths, (int[])Array.CreateInstance(typeof(int), lengths.Length)) { }
-        public NDimArray(Array array)
+
+        public NDimArray(params int[] lengths) : 
+            this(
+                lengths, 
+                lengths != null ? 
+                    (lengths.Length > 0 ? 
+                        (int[])Array.CreateInstance(typeof(int), lengths.Length) 
+                        : throw new ArgumentException("lengths", "lengths myst have at least 1 element")) 
+                    : throw new ArgumentNullException("lengths","lengths was null")
+                ) { }
+
+        public NDimArray(T[] array)
         {
             if (array == null)
-                throw new ArgumentNullException("array", "array was null");
-            
+                throw new ArgumentNullException("array","array is null");
+
             this.array = array;
         }
-        public NDimArray(T[] array) : this((Array)array) { }
         #endregion
 
         #region Getters/Setters
@@ -93,7 +109,7 @@ namespace NDimArray
 
         protected virtual bool ValidDimensions(int[] dims)
         {
-            return Array.TrueForAll(dims, x => x >= 0);
+            return Array.TrueForAll(dims, x => x > 0);
         }
         #endregion
 
