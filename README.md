@@ -5,17 +5,21 @@ See ![the wiki](https://github.com/SpencerAWill/NDimArray/wiki) for (**unfinishe
 
 ## Installation
 
-### dotnet CLI
+### CLI
 Install the latest package from the commandline using the following command:<br>
 `dotnet add PROJECT package NDimArray`
 
-### nuget CLI
+### NuGet.exe CLI
 Install the latest package from the nuget CLI using the following command:<br>
 `nuget install NDimArray`
 
+## Package Manager Console
+Install the latest package from the nuget CLI using the following command:<br>
+`Install-Package NDimArray -ProjectName PROJECT`
+
 ## Examples
 
-### Creating a new 2×2×2 array of strings:
+#### Creating a new 2×2×2 array of strings:
 ```C#
 var array = new NDimArray<string>(2, 2, 2);
 
@@ -29,7 +33,7 @@ array[1,1,0] = "g";
 array[1,1,1] = "h";
 ```
 
-### Regular enumeration through this array:
+#### Regular enumeration through this array:
 ```C#
 array.Enumerate(x => Console.WriteLine(x));
 ```
@@ -46,12 +50,12 @@ h
 ```
 
 
-## Advanced enumeration
+### Advanced enumeration
 
 Using the overloaded `Enumerate` function, it is possible to enumerate between any 2 indices in the array.
 The following are some examples of this:
 
-### Reverse Enumeration
+#### Reverse Enumeration
 ```C#
 //These parameters define a REVERSE enumeration through this array.
 
@@ -74,7 +78,7 @@ Will show:
 [0, 0, 0]: a
 ```
 
-### Enumeration excluding a dimension (eg. 2D enumeration in a 3D array, 1D enumeration in a 2D array)
+#### Enumeration excluding a dimension (eg. 2D enumeration in a 3D array, 1D enumeration in a 2D array)
 ```C#
 //With point enumeration, you can exclude a dimension from enumeration. I.e. enumerate through a 2D plane in a 3D array
 
@@ -93,7 +97,7 @@ Will show:
 [1, 0, 1]: "f"
 ```
 
-### Enumeration excluding ANY number of dimensions (eg. 1D enumeration in a 3D array)
+#### Enumeration excluding ANY number of dimensions (eg. 1D enumeration in a 3D array)
 ```C#
 //With point enumeration, you can exclude a dimension from enumeration. I.e. enumerate through a 1D segment in a 3D array
 
@@ -110,7 +114,7 @@ Will show:
 [1, 0, 0]: "e"
 ```
 
-### Enumeration between any 2 points
+#### Enumeration between any 2 points
 ```C#
 var array = new NDimArray<string>(3, 3, 3); 
 
