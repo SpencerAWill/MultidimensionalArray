@@ -3,11 +3,17 @@ Provides a generic wrapper around the Array object, along with indexed enumerati
 
 See ![the wiki](https://github.com/SpencerAWill/NDimArray/wiki) for (**unfinished**) documentation.
 
+## Installation
 
-**I will be releasing a NuGet package of this as soon as I finish basic testing**
+### dotnet CLI
+Install the latest package from the commandline using the following command:<br>
+`dotnet add PROJECT package NDimArray`
 
-**I have started releasing Unit Tests [here](./NDimArray/NDimArrayTests)**
+### nuget CLI
+Install the latest package from the nuget CLI using the following command:<br>
+`nuget install NDimArray`
 
+## Examples
 
 ### Creating a new 2×2×2 array of strings:
 ```C#
