@@ -14,7 +14,7 @@ Install the latest package from the nuget CLI using the following command:<br>
 `nuget install NDimArray`
 
 ## Package Manager Console
-Install the latest package from the nuget CLI using the following command:<br>
+Install the latest package from the Package Manager Console using the following command:<br>
 `Install-Package NDimArray -ProjectName PROJECT`
 
 ## Examples
