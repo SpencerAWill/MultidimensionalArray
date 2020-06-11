@@ -6,65 +6,65 @@ using System.Text;
 
 namespace NDimArray
 {
-    internal sealed partial class SpatialEnumerator<T> : IEnumerator<T>, IEnumerator<Tuple<int[], T>>
+    internal sealed class SpatialEnumerator<T> : IEnumerator<T>, IEnumerator<Tuple<int[], T>>
     {
-        readonly Array array;
-        bool firstEvaluated;
+        private Array _array;
+        private int[] _diff;
+        private int[] _enumerationDirections;
+        private EnumerationPath _path;
+        private int[] _currentIndex;
+        private bool _firstEvaluated;
 
-        readonly int[] _diff;
-        readonly int[] _enumerationDirections;
-
-        readonly int[] _startIndices;
-        readonly int[] _endIndices;
-
-        readonly int[] _dimPriorityList;
-        int[] _currentIndex;
+        private Array Array { get => _array; }
+        public IReadOnlyList<int> Difference { get => _diff; }
+        public IReadOnlyList<int> EnumerationDirections { get => _enumerationDirections; }
+        public EnumerationPath Path { get => _path; }
+        private int[] CurrentIndex { get => _currentIndex; }
+        private bool FirstEvaluated { get => _firstEvaluated; set => _firstEvaluated = value; }
 
         public T Current => 
-            (T)array.GetValue(_currentIndex);
+            (T)_array.GetValue(_currentIndex);
 
         Tuple<int[], T> IEnumerator<Tuple<int[], T>>.Current => 
             new Tuple<int[], T>(_currentIndex, Current);
 
         object IEnumerator.Current => Current;
 
-        public SpatialEnumerator(Array array, int[] startIndex, int[] endIndex, int[] enumPriorityList)
+        public SpatialEnumerator(Array array, EnumerationPath path)
         {
             if (array == null)
                 throw new ArgumentNullException("array", "array is null");
+            if (path == null)
+                throw new ArgumentNullException("path", "path is null");
 
-            if (startIndex.SequenceEqual(endIndex))
-                throw new ArgumentException("indices are sequentially the same");
+            if (array.Rank != path.Start.Length || array.Rank != path.End.Length || array.Rank != path.DimEnumerationPriorities.Length)
+                throw new ArgumentException("path", "path properties have more elements than the rank of the array");
 
-            this.array = array;
+            _array = array;
+            _path = path;
 
-            ValidateConstructor(array, startIndex, endIndex, enumPriorityList);
-
-            this.array = array;
-            _startIndices = startIndex;
-            _endIndices = endIndex;
-            _dimPriorityList = enumPriorityList;
-
-            _diff = _endIndices.SubtractEach(_startIndices); //gets a vector-like difference between the start and end.
-            _enumerationDirections = _diff.IndivFunc(_diff, (a, b) =>  a != 0 ? a / Math.Abs(b) : 0); //scales each vector component down to -1, 0, or 1;
+            _diff = Path.End.SubtractEach(Path.Start);
+            _enumerationDirections = _diff.IndivFunc(_diff, (a, b) => a != 0 ? a / Math.Abs(b) : 0);
             Reset();
         }
 
-        public SpatialEnumerator(Array array, int[] startIndex, int[] endIndex) : this(array, startIndex, endIndex, NDimArray.GetStandardEnumerationPriorities(array.Rank)) { }
-
-        public SpatialEnumerator(Array array) : this(array, array.GetLowerBoundaries(), array.GetUpperBoundaries()) { }
+        public SpatialEnumerator(Array array) : this(
+            array, 
+            new EnumerationPath(
+                array.GetLowerBoundaries(), 
+                array.GetUpperBoundaries())) { }
 
         public void Reset()
         {
-            firstEvaluated = false;
-            _currentIndex = (int[])_startIndices.Clone(); //sets current index to the startPoint
+            FirstEvaluated = false;
+            _currentIndex = (int[])Path.Start.Clone(); //sets current index to the startPoint
         }
 
         public bool MoveNext()
         {
-            if (firstEvaluated)
+            if (FirstEvaluated)
             {
-                if (!_currentIndex.SequenceEqual(_endIndices))
+                if (!CurrentIndex.SequenceEqual(Path.End))
                 {
                     Increment(0);
                     return true;
@@ -73,28 +73,28 @@ namespace NDimArray
             }
             else
             {
-                firstEvaluated = true;
+                FirstEvaluated = true;
                 return true;
             }
         }
 
         private void Increment(int priorityIndex)
         {
-            int dimToIncrement = _dimPriorityList[priorityIndex];
-            int incrementationAmount = _enumerationDirections[dimToIncrement];
+            int dimToIncrement = Path.DimEnumerationPriorities[priorityIndex];
+            int incrementationAmount = EnumerationDirections[dimToIncrement];
 
-            if (ShouldMove())
+            if (ShouldMove()) //when the end of the current dimension is reached
             {
-                _currentIndex[dimToIncrement] = _startIndices[dimToIncrement];
-                Increment(priorityIndex + 1);
+                CurrentIndex[dimToIncrement] = Path.Start[dimToIncrement]; //reset current index back
+                Increment(priorityIndex + 1); //increment next dimension
             } else
             {
-                _currentIndex[dimToIncrement] += incrementationAmount;
+                CurrentIndex[dimToIncrement] += incrementationAmount;
             }
 
             bool ShouldMove()
             {
-                return _currentIndex[dimToIncrement] == _endIndices[dimToIncrement];
+                return CurrentIndex[dimToIncrement] == Path.End[dimToIncrement];
             }
         }
         
@@ -124,49 +124,6 @@ namespace NDimArray
             }
 
             return retArray;
-        }
-    }
-
-    internal partial class SpatialEnumerator<T>
-    {
-        void ValidateConstructor(Array array, int[] startIndices, int[] endIndices, int[] dimPriorityList)
-        {
-            //null checks
-            if (startIndices == null)
-                throw new ArgumentNullException("startIndices", "startIndices is null");
-            if (endIndices == null)
-                throw new ArgumentNullException("endIndices", "endIndices is null");
-            if (dimPriorityList == null)
-                throw new ArgumentNullException("dimPriorityList", "dimPriorityList is null");
-
-            //length checks
-            if (array.Rank != startIndices.Length)
-                throw new ArgumentOutOfRangeException("startIndices", "startIndices length must be the same as the rank of the array");
-            if (array.Rank != endIndices.Length)
-                throw new ArgumentOutOfRangeException("endIndices", "endIndices length must be the same as the rank of the array");
-            if (array.Rank != endIndices.Length)
-                throw new ArgumentOutOfRangeException("dimPriorityList", "dimPriorityList length must be the same as the rank of the array");
-
-            //boundary tests
-            if (!dimPriorityList.ElementsUnique())
-                throw new ArgumentException("dimPriorityList", "dimPriorityList elements must be unique");
-            if (!Array.TrueForAll(dimPriorityList, x => x >= 0 && x < dimPriorityList.Length))
-                throw new ArgumentException("dimPriorityList", "dimPriorityList elements must be a sequence with no gaps between 0 and length - 1");
-            if (!ValidIndex(startIndices))
-                throw new ArgumentOutOfRangeException("startIndices", "startIndices are not within the bounds of the array");
-            if (!ValidIndex(endIndices))
-                throw new ArgumentOutOfRangeException("endIndices", "endIndices are not within the bounds of the array");
-        }
-
-        bool ValidIndex(int[] index)
-        {
-            for (int i = 0; i < index.Length; i++)
-            {
-                int item = index[i];
-                if (item < array.GetLowerBound(i) || item > array.GetUpperBound(i))
-                    return false;
-            }
-            return true;
         }
     }
 }
