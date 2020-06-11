@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NDimArray
 {
-    public struct EnumerationPath
+    public class EnumerationPath
     {
         private int[] _start;
         private int[] _end;
