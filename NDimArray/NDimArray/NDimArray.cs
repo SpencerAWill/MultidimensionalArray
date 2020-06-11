@@ -136,42 +136,9 @@ namespace NDimArray
             }
         }
 
-        #region DEPRECATED. TODO: REMOVE THESE
-        /// <summary>
-        /// Deprecated. Please use Enumerate(EnumerationPath path, Action<int[], T> action).
-        /// </summary>
-        public void Enumerate(int[] start, int[] end, int[] dimPriorities, Action<int[], T> action)
-        {
-            using (IEnumerator<Tuple<int[], T>> enumer = new SpatialEnumerator<T>(array, start, end, dimPriorities))
-            {
-                while (enumer.MoveNext())
-                {
-                    var tup = enumer.Current;
-                    action(tup.Item1, tup.Item2);
-                }
-            }
-        }
-        /// <summary>
-        /// Deprecated. Please use Enumerate(EnumerationPath path, Action<T> action).
-        /// </summary>
-        public void Enumerate(int[] start, int[] end, int[] dimPriorities, Action<T> action) =>
-            Enumerate(start, end, dimPriorities, (index, item) => action(item));
-
-        /// <summary>
-        /// Deprecated. Please use Enumerate(EnumerationPath path, Action<int[], T> action).
-        /// </summary>
-        public void Enumerate(int[] start, int[] end, Action<int[], T> action) => 
-            Enumerate(start, end, NDimArray.GetStandardEnumerationPriorities(Rank), action);
-        /// <summary>
-        /// Deprecated. Please use Enumerate(EnumerationPath path, Action<int[], T> action).
-        /// </summary>
-        public void Enumerate(int[] start, int[] end, Action<T> action) =>
-            Enumerate(start, end, (index, item) => action(item));
-        #endregion
-
         public void Enumerate(EnumerationPath path, Action<int[], T> action)
         {
-            using (IEnumerator<Tuple<int[], T>> enumer = new SpatialEnumerator<T>(array, path.Start, path.End, path.DimEnumerationPriorities))
+            using (IEnumerator<Tuple<int[], T>> enumer = new SpatialEnumerator<T>(array, path))
             {
                 while (enumer.MoveNext())
                 {
@@ -186,86 +153,49 @@ namespace NDimArray
         #endregion
 
         #region Methods
-        public int GetLowerBound(int dimension)
-        {
-            return array.GetLowerBound(dimension);
-        }
         public int[] GetLowerBoundaries() =>
             array.GetLowerBoundaries();
-
-        public int GetUpperBound(int dimension)
-        {
-            return array.GetUpperBound(dimension);
-        }
         public int[] GetUpperBoundaries() =>
             array.GetUpperBoundaries();
 
-        public int[] GetStandardEnumerationPriorities()
-        {
-            return NDimArray.GetStandardEnumerationPriorities(Rank);
-        }
+        public int GetUpperBound(int dimension) 
+            => array.GetUpperBound(dimension);
+        public int GetLowerBound(int dimension)
+            => array.GetLowerBound(dimension);
+
+        public int[] GetStandardEnumerationPriorities() => 
+            NDimArray.GetStandardEnumerationPriorities(Rank);
         #endregion
 
         #region Statics
 
-        public static void Fill(NDimArray<T> array, int[] start, int[] end, int[] dimPriorities, Func<int[], T, T> fillRule)
+        public static void Fill(NDimArray<T> array, EnumerationPath path, Func<int[], T, T> fillRule)
         {
-            //THERE ARE WAY TOO MANY CONDITIONS HERE
-            //perhaps move parameters: start, end, dimPriorities to a separate class/struct which does the checks (SRP)
-
             // null checks
             if (array == null)
-                throw new ArgumentNullException("array", "array is null");
-            if (start == null)
-                throw new ArgumentNullException("start", "start is null");
-            if (end == null)
-                throw new ArgumentNullException("end", "end is null");
-            if (array == null)
                 throw new ArgumentNullException("dimPriorities", "dimPriorities is null");
+            if (path == null)
+                throw new ArgumentNullException("path", "path is null");
 
-            //no item checks
-            if (start.Length < 1)
-                throw new ArgumentException("start", "start must have at least one element");
-            if (end.Length < 1)
-                throw new ArgumentException("end", "end must have at least one element");
-            if (dimPriorities.Length < 1)
-                throw new ArgumentException("dimPriorities", "dimPriorities must have at least one element");
-
-            //length checks
-            if (start.Length != array.Rank)
-                throw new ArgumentException("start", "start must have the same number of indices as the rank of the array");
-            if (end.Length != array.Rank)
-                throw new ArgumentException("end", "end must have the same number of indices as the rank of the array");
-            if (dimPriorities.Length != array.Rank)
-                throw new ArgumentException("dimPriorities", "dimPriorities must have the same number of indices as the rank of the array");
-
-            if (!array.ValidIndices(start))
+            if (!array.ValidIndices(path.Start))
                 throw new IndexOutOfRangeException("1 or more dimension indices in start was out of the range of the array");
-            if (!array.ValidIndices(end))
+            if (!array.ValidIndices(path.End))
                 throw new IndexOutOfRangeException("1 or more dimension indices in end was out of the range of the array");
-            if (!dimPriorities.SequenceEqual(dimPriorities.Distinct()))
+            if (!path.DimEnumerationPriorities.ElementsUniqueAlt())
                 throw new ArgumentException("dimPriorities", "dimPriorities must be distinct (every element must be unique)");
-            if (!Array.TrueForAll(dimPriorities, x => x >= 0 && x <= array.Rank - 1))
-                throw new ArgumentOutOfRangeException("dimPriorities", "one or more elements of dimPriorities was an invalid dimension");
 
-            array.Enumerate(start, end, dimPriorities, (index, item) => array[index] = fillRule(index, item));
+            array.Enumerate(path, (index, item) => fillRule(index, item));
         }
 
-        public static void Fill(NDimArray<T> array, int[] start, int[] end, int[] dimPriorities, T value) =>
-            Fill(array, start, end, dimPriorities, (index, item) => value);
-
-        public static void Fill(NDimArray<T> array, int[] start, int[] end, Func<int[], T, T> fillRule) =>
-            Fill(array, start, end, array.GetStandardEnumerationPriorities(), fillRule);
-
-        public static void Fill(NDimArray<T> array, int[] start, int[] end, T value) =>
-            Fill(array, start, end, (index, item) => value);
+        public static void Fill(NDimArray<T> array, EnumerationPath path, T value) =>
+            Fill(array, path, (index, item) => value);
 
         public static void Fill(NDimArray<T> array, Func<int[], T, T> fillRule) =>
             Fill(
                 array,
-                array.GetLowerBoundaries(),
-                array.GetUpperBoundaries(),
-                array.GetStandardEnumerationPriorities(),
+                new EnumerationPath(
+                    array.GetLowerBoundaries(),
+                    array.GetUpperBoundaries()),
                 fillRule);
 
         public static void Fill(NDimArray<T> array, T value) =>
