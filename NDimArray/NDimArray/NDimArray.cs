@@ -6,7 +6,29 @@ using System.Text;
 
 namespace NDimArray
 {
-    public class NDimArray<T> : IEnumerable<T>, IEnumerable<Tuple<int[], T>>
+    public interface INDimArray<T> : IEnumerable<T>, IEnumerable<Tuple<int[], T>>
+    {
+        int Rank { get; }
+        int Length { get; }
+        object SyncRoot { get; }
+        bool IsFixedSize { get; }
+        bool IsSynchronized { get; }
+        bool IsReadOnly { get; }
+
+        int GetLength(int dimension);
+        int GetLowerBound(int dimension);
+        int[] GetStandardEnumerationPriorities();
+        int GetUpperBound(int dimension);
+    }
+
+    public interface IReadOnlyNDimArray<T> : INDimArray<T>
+    {
+        new bool IsReadOnly { get; }
+        T this[params int[] index] { get; }
+        T GetValue(params int[] index);
+    }
+
+    public class NDimArray<T> : INDimArray<T>, IReadOnlyNDimArray<T>, IEnumerable<T>, IEnumerable<Tuple<int[], T>>
     {
         private readonly Array array;
 
@@ -28,6 +50,7 @@ namespace NDimArray
         public bool IsFixedSize => true;
         public virtual bool IsSynchronized => false;
         public bool IsReadOnly => false;
+        bool IReadOnlyNDimArray<T>.IsReadOnly => true;
 
         public T this[params int[] index]
         {
@@ -158,10 +181,16 @@ namespace NDimArray
         public int[] GetUpperBoundaries() =>
             array.GetUpperBoundaries();
 
-        public int GetUpperBound(int dimension) 
-            => array.GetUpperBound(dimension);
-        public int GetLowerBound(int dimension)
-            => array.GetLowerBound(dimension);
+        public int GetUpperBound(int dimension) => 
+            array.GetUpperBound(dimension);
+        public int GetLowerBound(int dimension) => 
+            array.GetLowerBound(dimension);
+
+        public int GetLength(int dimension) =>
+            array.GetLength(dimension);
+
+        public int[] GetLengths() =>
+            array.DimEnumerator(x => array.GetLength(x));
 
         public int[] GetStandardEnumerationPriorities() => 
             NDimArray.GetStandardEnumerationPriorities(Rank);
@@ -201,9 +230,52 @@ namespace NDimArray
         public static void Fill(NDimArray<T> array, T value) =>
             Fill(array, (index, item) => value);
 
-        public static NDimArray<T> Sub(NDimArray<T> array, int[] start, int[] end, bool preserveIndices = false) =>
+        public static NDimArray<T> Sub(NDimArray<T> array, EnumerationPath path)
+        {
+            if (array == null)
+                throw new ArgumentNullException("array", "array is null");
+            if (path == null)
+                throw new ArgumentNullException("path", "path is null");
+
+
+            int[] difference = path.End.SubtractEach(path.Start);
+
+
+
             throw new NotImplementedException();
+        }
+
+        public static NDimArray<T> Synchronize(NDimArray<T> array)
+        {
+            return new SyncNDimArray<T>(array);
+        }
         #endregion
+    }
+
+    internal sealed class SyncNDimArray<T> : NDimArray<T>
+    {
+        internal SyncNDimArray(NDimArray<T> array) : base(array.GetLengths(), array.GetLowerBoundaries())
+        {
+            array.Enumerate((index, item) => this[index] = item);
+        }
+
+        public override bool IsSynchronized => true;
+
+        public override T GetValue(params int[] index)
+        {
+            lock (SyncRoot)
+            {
+                return base.GetValue(index);
+            }
+        }
+
+        public override void SetValue(T value, params int[] index)
+        {
+            lock (SyncRoot)
+            {
+                base.SetValue(value, index);
+            }
+        }
     }
 
     public static class NDimArray
