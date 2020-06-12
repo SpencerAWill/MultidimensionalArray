@@ -22,7 +22,7 @@ namespace NDimArray
         /// Function that acts on every dimension of an array.
         /// </summary>
         /// <param name="func">Takes in an indexed dimension.</param>
-        private static int[] DimEnumerator(this Array array, Func<int, int> func)
+        internal static int[] DimEnumerator(this Array array, Func<int, int> func)
         {
             var retArray = new int[array.Rank];
 
