@@ -4,7 +4,7 @@ using System.Text;
 
 namespace NDimArray
 {
-    public class Index : IIndex
+    public class NIndex : INIndex
     {
         private int[] _indices;
 
@@ -16,11 +16,11 @@ namespace NDimArray
             private set => _indices[dimension] = value;
         }
 
-        public Index(int[] indices)
+        public NIndex(int[] indices)
         {
             if (indices == null)
                 throw new ArgumentNullException("indices", "indices is null");
-            if (indices.Length < 1)
+            if (indices.Length == 0)
                 throw new ArgumentException("indices", "indices is empty");
 
             _indices = indices;
@@ -29,7 +29,7 @@ namespace NDimArray
         /// <summary>
         /// A - B
         /// </summary>
-        public static int[] Difference(IIndex a, IIndex b)
+        public static int[] Difference(INIndex a, INIndex b)
         {
             if (a == null)
                 throw new ArgumentNullException("a", "a is null");
@@ -47,7 +47,7 @@ namespace NDimArray
         }
     }
 
-    public interface IIndex
+    public interface INIndex
     {
         IReadOnlyList<int> Indices { get; }
     }
