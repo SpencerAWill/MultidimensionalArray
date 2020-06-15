@@ -18,7 +18,7 @@ namespace NDimArray
             set => _indices[dimension] = value;
         }
 
-        public NIndex(int[] indices)
+        public NIndex(params int[] indices)
         {
             if (indices == null)
                 throw new ArgumentNullException("indices", "indices is null");
