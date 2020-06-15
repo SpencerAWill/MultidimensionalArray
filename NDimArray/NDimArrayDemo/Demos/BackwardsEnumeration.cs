@@ -22,9 +22,11 @@ namespace NDimArrayDemo.Demos
         public void Run(Action<int[], T> action)
         {
             Array.Enumerate(
-                new EnumerationPath(
-                    Array.GetUpperBoundaries(),
-                    Array.GetLowerBoundaries()),
+                new IndexPath(
+                    new NIndex(Array.GetUpperBoundaries()),
+                    new NIndex(Array.GetLowerBoundaries()),
+                    EnumerationPriorities.CreateStandard(Array.Rank)
+                    ),
                 (index, item) => Console.WriteLine($"[{String.Join(", ", index)}]: {item}"));
         }
     }
