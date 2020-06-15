@@ -6,6 +6,7 @@ using System.Text;
 
 namespace NDimArrayTests
 {
+    [TestFixture]
     public class NDimArrayTests
     {
         #region Constructor NDimArray<T>(int[] lengths)
