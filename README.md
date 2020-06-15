@@ -1,7 +1,13 @@
 # NDimArray
 Provides a generic wrapper around the Array object, along with indexed enumeration.
 
-See ![the wiki](https://github.com/SpencerAWill/NDimArray/wiki) for (**unfinished**) documentation.
+[Wiki/Documentation](https://github.com/SpencerAWill/NDimArray/wiki)
+
+
+Find the latest NuGet package [here](https://github.com/SpencerAWill/NDimArray/packages)
+
+
+:heavy_exclamation_mark:  [Issue template](https://github.com/SpencerAWill/NDimArray/tree/master/.github/ISSUE_TEMPLATE)  :heavy_exclamation_mark:
 
 ## Installation
 
@@ -60,9 +66,10 @@ The following are some examples of this:
 //These parameters define a REVERSE enumeration through this array.
 
 array.Enumerate(
-  new int[] { 1, 1, 1 }, //index of the last item [1,1,1]
-  new int[] { 0, 0, 0 }, //index of the first item [0,0,0]
-  new int[] { 2, 1, 0 }, //default depth-column-row enumeration (feel free to experiment with distinct priority lists
+  new IndexPath(
+    new NIndex(1, 1, 1), //index of the last item [1,1,1]
+    new NIndex(0, 0, 0), //index of the first item [0,0,0]
+    new EnumerationPriorities(2, 1, 0)), //default depth-column-row enumeration (feel free to experiment with distinct priority lists
   (index, item) => { Console.WriteLine($"[{String.Join(", ", index)}]: { item }"); } //action on each item
   );
 ```
@@ -83,9 +90,10 @@ Will show:
 //With point enumeration, you can exclude a dimension from enumeration. I.e. enumerate through a 2D plane in a 3D array
 
 array.Enumerate(
-  new int[] { 0, 0, 0 },
-  new int[] { 1, 0, 1 },
-  new int[] { 2, 1, 0 }, //in this case, because we are not going to moving through dimension 1, this functions more like a { 2, 0 } priority list)
+  new IndexPath(
+    new NIndex(0, 0, 0),
+    new NIndex(1, 0, 1),
+  n ew EnumerationPriorities(2, 1, 0)), //in this case, because we are not going to moving through dimension 1, this functions more like a { 2, 0 } priority list)
   (index, item) => { Console.WriteLine($"[{String.Join(", ", index)}]: { item }"); } //action on each item
 );
 ```
@@ -102,9 +110,10 @@ Will show:
 //With point enumeration, you can exclude a dimension from enumeration. I.e. enumerate through a 1D segment in a 3D array
 
 array.Enumerate(
-  new int[] { 0, 0, 0 }, 
-  new int[] { 1, 0, 0 }, //notice the only dimension that will change is the 0th dimension
-  new int[] { 2, 1, 0 }, //this list now only functions like a single element { 0 } because the 1st and 2nd dimension are excluded. 
+  new IndexPath(
+    new NIndex(0, 0, 0), 
+    new NIndex(1, 0, 0), //notice the only dimension that will change is the 0th dimension
+    new EnumerationPriorities(2, 1, 0)), //this list now only functions like a single element { 0 } because the 1st and 2nd dimension are excluded. 
   (index, item) => { Console.WriteLine($"[{String.Join(", ", index)}]: { item }"); } //action on each item
 );
 ```
@@ -120,9 +129,9 @@ var array = new NDimArray<string>(3, 3, 3);
 
 //assume we now fill all 27 elements a -> z then '!' as the 27th element
 
-var start = new int[] { 0, 1, 1 }; //this puts us in the central element of the top of the cube
-var end = new int[] { 2, 2, 0 }; //end will be the bottom right of the front of the cube
-var priorities = new int[] { 1, 2, 0 }; //each element must be unique
+var start = new NIndex(0, 1, 1); //this puts us in the central element of the top of the cube
+var end = new NIndex(2, 2, 0); //end will be the bottom right of the front of the cube
+var priorities = new EnumerationPriorities(1, 2, 0); //each element must be unique
 
 //It is beneficial to visualize this array as a cube of side length 3.
 //It is also beneficial to visualize the origin  [0, 0, 0] of the cube as the front top left of the cube, 
@@ -144,11 +153,11 @@ var priorities = new int[] { 1, 2, 0 }; //each element must be unique
 */
 
 array.Enumerate(
-  start,
-  end,
-  priorities,
-  x => Console.WriteLine(x)
-  );
+  new IndexPath(
+    start,
+    end,
+    priorities),
+  x => Console.WriteLine(x));
 ```
 
 Will show:
