@@ -13,7 +13,7 @@ namespace NDimArray
 
         public int this[int index] => Priorities[index];
 
-        public EnumerationPriorities(int[] priorities)
+        public EnumerationPriorities(params int[] priorities)
         {
             Verify(priorities);
 
