@@ -6,42 +6,32 @@ namespace NDimArray
 {
     public static class ArrayExtensions
     {
-        internal static int[] SubtractEach(this int[] array, int[] other)
+        /// <summary>
+        /// Gets an array of the first indices in each dimension.
+        /// </summary>
+        internal static int[] GetLowerBoundaries(this Array array) =>
+            DimEnumerator(array, x => array.GetLowerBound(x));
+
+        /// <summary>
+        /// Gets an array of the last indices in each dimension.
+        /// </summary>
+        internal static int[] GetUpperBoundaries(this Array array) =>
+            DimEnumerator(array, x => array.GetUpperBound(x));
+
+        /// <summary>
+        /// Function that acts on every dimension of an array.
+        /// </summary>
+        /// <param name="func">Takes in an indexed dimension.</param>
+        internal static int[] DimEnumerator(this Array array, Func<int, int> func)
         {
-            return array.IndivFunc(other, (a, b) => a - b);
-        }
+            var retArray = new int[array.Rank];
 
-        internal static int[] DivideEach(this int[] dividends, int[] divisors)
-        {
-            return dividends.IndivFunc(divisors, (a, b) => (int)(a / b));
-        }
-
-        internal static int[] IndivFunc(this int[] a, int[] b, Func<int, int, int> func)
-        {
-            if (a.Length != b.Length)
-                throw new ArgumentOutOfRangeException("other", "other array must be the same rank and length as this array.");
-
-            int[] returnArray = new int[a.GetLength(0)];
-
-            for (int i = 0; i < a.Length; i++)
+            for (int i = 0; i < retArray.Length; i++)
             {
-                returnArray[i] = func(a[i], b[i]);
+                retArray[i] = func(i);
             }
 
-            return returnArray;
-        }
-
-        internal static bool ElementsUnique(this int[] array)
-        {
-            List<int> frequencies = new List<int>(array.Length);
-            foreach (var item in array)
-            {
-                if (frequencies.Contains(item))
-                    return false;
-                else
-                    frequencies.Add(item);
-            }
-            return true;
+            return retArray;
         }
     }
 }
