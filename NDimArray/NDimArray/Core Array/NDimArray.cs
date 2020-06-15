@@ -178,9 +178,9 @@ namespace NDimArray
                 action(item);
             }
         }
-        public void Enumerate(Action<int[], T> action)
+        public void Enumerate(Action<INIndex, T> action)
         {
-            foreach (var item in (IEnumerable<Tuple<int[], T>>)this)
+            foreach (var item in (IEnumerable<Tuple<INIndex, T>>)this)
             {
                 action(item.Item1, item.Item2);
             }
