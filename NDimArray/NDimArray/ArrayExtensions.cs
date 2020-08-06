@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace NDimArray
@@ -32,6 +33,24 @@ namespace NDimArray
             }
 
             return retArray;
+        }
+
+        internal static int[] Reduce(this int[] array) => 
+            array.Select(i => i == 0 ? 0 : i / Math.Abs(i)).ToArray();
+
+        internal static int[] Difference(this int[] array, int[] other)
+        {
+            _ = other ?? throw new ArgumentNullException(nameof(other));
+
+            if (array.Length != other.Length)
+                throw new ArgumentException($"{nameof(array)} must be the same length as the length of {nameof(other)}");
+
+            int[] ret = new int[array.Length];
+            for (int i = 0; i < array.Length; i++)
+            {
+                ret[i] = array[i] - other[i];
+            }
+            return ret;
         }
     }
 }
