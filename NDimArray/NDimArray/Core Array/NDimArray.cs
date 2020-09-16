@@ -7,7 +7,11 @@ using System.Text;
 namespace NDimArray
 {
 
-    public partial class NDimArray<T> : INDimArray<T>, IReadOnlyNDimArray<T>, IEnumerable<T>, IEnumerable<Tuple<INIndex, T>>
+    public partial class NDimArray<T> : 
+        INDimArray<T>, 
+        IReadOnlyNDimArray<T>, 
+        IEnumerable<T>, 
+        IEnumerable<Tuple<int[], T>>
     {
         private readonly Array array;
 
@@ -28,8 +32,8 @@ namespace NDimArray
 
         public bool IsFixedSize => true;
         public virtual bool IsSynchronized => false;
-        public bool IsReadOnly => false;
-        bool IReadOnlyNDimArray<T>.IsReadOnly => true;
+        public bool IsReadOnly => true;
+        bool INDimArray<T>.IsReadOnly => false;
 
         public T this[params int[] index]
         {
@@ -37,14 +41,8 @@ namespace NDimArray
             set => SetValue(value, index);
         }
 
-        public T this[INIndex index]
-        {
-            get => GetValue(index);
-            set => SetValue(value, index);
-        }
-
         #region Constructors
-        public NDimArray(int[] lengths, INIndex lowerBounds)
+        public NDimArray(int[] lengths, int[] lowerBounds)
         {
             if (lengths == null)
                 throw new ArgumentNullException("lengths", "lengths is null");
@@ -57,13 +55,11 @@ namespace NDimArray
             if (!ValidDimensions(lengths))
                 throw new ArgumentOutOfRangeException("lengths", "all lengths must be greater than 0.");
 
-            if (lengths.Length != lowerBounds.Indices.Count)
+            if (lengths.Length != lowerBounds.Length)
                 throw new ArgumentException("lowerBounds", "lowerBounds and lengths must be the same lengths");
 
-            array = Array.CreateInstance(typeof(T), lengths, lowerBounds.Indices.ToArray());
+            array = Array.CreateInstance(typeof(T), lengths, lowerBounds);
         }
-
-        public NDimArray(int[] lengths, int[] lowerBounds) : this(lengths, new NIndex(lowerBounds)) { }
 
         public NDimArray(params int[] lengths)
         {
@@ -73,12 +69,12 @@ namespace NDimArray
             if (lengths.Length == 0)
                 throw new ArgumentException("lengths", "lengths must have at least 1 element");
 
-            INIndex origin = NIndex.Origin(lengths.Length);
+            var origin = new int[lengths.Length];
 
             if (!ValidDimensions(lengths))
                 throw new ArgumentOutOfRangeException("lengths", "all lengths must be greater than 0.");
 
-            array = Array.CreateInstance(typeof(T), lengths, origin.Indices.ToArray());
+            array = Array.CreateInstance(typeof(T), lengths, origin);
         }
 
         public NDimArray(T[] array)
@@ -91,11 +87,9 @@ namespace NDimArray
         #endregion
 
         #region Getters/Setters
-
-        #region int[]
         public virtual T GetValue(params int[] index)
         {
-            if (ValidIndices(index))
+            if (ValidIndex(index))
                 return (T)array.GetValue(index);
             else
                 throw new IndexOutOfRangeException("one or more indices was out of range");
@@ -103,92 +97,50 @@ namespace NDimArray
 
         public virtual void SetValue(T value, params int[] index)
         {
-            if (ValidIndices(index))
+            if (ValidIndex(index))
                 array.SetValue(value, index);
         }
 
-        protected virtual bool ValidIndices(int[] index)
+        public virtual bool ValidIndex(params int[] index)
         {
-            if (index == null)
-                throw new ArgumentNullException("indices", "indices was null");
+            _ = index ?? throw new ArgumentNullException(nameof(index));
 
             if (index.Length != Rank)
-                throw new ArgumentOutOfRangeException("indices", "index must match the rank of the NDimArray");
+                throw new ArgumentOutOfRangeException(nameof(index), "index must equal the rank of the NDimArray");
 
             for (int i = 0; i < index.Length; i++)
             {
                 if (index[i] < array.GetLowerBound(i) || index[i] > array.GetUpperBound(i))
                     return false;
-                else
-                    continue;
             }
             return true;
         }
         #endregion
 
-        #region IReadOnlyNIndex
-        public virtual T GetValue(INIndex index)
-        {
-            if (ValidIndex(index))
-                return GetValue(index.Indices.ToArray());
-            else
-                throw new IndexOutOfRangeException("one or more indices was out of range");
-        }
-
-        public virtual void SetValue(T value, INIndex index)
-        {
-            if (ValidIndex(index))
-                SetValue(value, index.Indices.ToArray());
-
-        }
-
-        protected virtual bool ValidIndex(INIndex index)
-        {
-            if (index == null)
-                throw new ArgumentNullException("index", "index is null");
-
-            for (int i = 0; i < index.Indices.Count; i++)
-            {
-                if (index[i] < array.GetLowerBound(i) || index[i] > array.GetUpperBound(i))
-                    return false;
-                else
-                    continue;
-            }
-            return true;
-        }
-        #endregion
-
-        protected virtual bool ValidDimensions(int[] dims)
-        {
-            return Array.TrueForAll(dims, x => x > 0);
-        }
-        #endregion
+        protected virtual bool ValidDimensions(int[] dims) => dims.All(x => x > 0);
 
         #region Enumeration
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
         public IEnumerator<T> GetEnumerator() => new P2PEnumerator<T>(array);
-
-        IEnumerator<Tuple<INIndex, T>> IEnumerable<Tuple<INIndex, T>>.GetEnumerator() => (IEnumerator<Tuple<INIndex, T>>)(new P2PEnumerator<T>(array));
+        IEnumerator<Tuple<int[], T>> IEnumerable<Tuple<int[], T>>.GetEnumerator() => (IEnumerator<Tuple<int[], T>>)(new P2PEnumerator<T>(array));
 
         public void Enumerate(Action<T> action)
         {
-            foreach (var item in this)
-            {
-                action(item);
-            }
+            Enumerate((array, item) => action(item));
         }
-        public void Enumerate(Action<INIndex, T> action)
+        public void Enumerate(Action<int[], T> action)
         {
-            foreach (var item in (IEnumerable<Tuple<INIndex, T>>)this)
-            {
-                action(item.Item1, item.Item2);
-            }
+            var path = new IndexPath(GetLowerBoundaries(), GetUpperBoundaries());
+            Enumerate(path, (array, item) => action(array, item));
+        }
+        public void Enumerate(IPath path, Action<T> action)
+        {
+            Enumerate(path, (index, item) => action(item));
         }
 
-        public void Enumerate(IPath path, Action<INIndex, T> action)
+        public void Enumerate(IPath path, Action<int[], T> action)
         {
-            using (IEnumerator<Tuple<INIndex, T>> enumer = new P2PEnumerator<T>(array, path))
+            using (IEnumerator<Tuple<int[], T>> enumer = new P2PEnumerator<T>(array, path))
             {
                 while (enumer.MoveNext())
                 {
@@ -197,9 +149,6 @@ namespace NDimArray
                 }
             }
         }
-
-        public void Enumerate(IPath path, Action<T> action) =>
-            Enumerate(path, (index, item) => action(item));
         #endregion
 
         #region Methods

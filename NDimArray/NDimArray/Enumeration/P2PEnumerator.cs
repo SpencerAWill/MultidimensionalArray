@@ -6,7 +6,7 @@ using System.Text;
 
 namespace NDimArray
 {
-    internal sealed class P2PEnumerator<T> : IEnumerator<T>, IEnumerator<Tuple<INIndex, T>>
+    internal sealed class P2PEnumerator<T> : IEnumerator<T>, IEnumerator<Tuple<int[], T>>
     {
         private Array _array;
 
@@ -15,20 +15,20 @@ namespace NDimArray
 
         private int[] _enumerationAxes;
         private bool _firstEvaluated;
-        private NIndex _currentIndex;
+        private int[] _currentIndex;
 
         private Array Array { get => _array; }
         public IPath Path { get => _path; }
         public IEnumerationPriorities Priorities { get => _priorities; }
         private int[] EnumerationAxes { get => _enumerationAxes; }
         private bool FirstEvaluated { get => _firstEvaluated; set => _firstEvaluated = value; }
-        public NIndex CurrentIndex { get => _currentIndex; private set => _currentIndex = value; }
+        public int[] CurrentIndex { get => _currentIndex; private set => _currentIndex = value; }
 
         public T Current =>
-            (T)Array.GetValue(CurrentIndex.Indices);
+            (T)Array.GetValue(CurrentIndex);
 
-        Tuple<INIndex, T> IEnumerator<Tuple<INIndex, T>>.Current =>
-            new Tuple<INIndex, T>(CurrentIndex, Current);
+        Tuple<int[], T> IEnumerator<Tuple<int[], T>>.Current =>
+            new Tuple<int[], T>(CurrentIndex, Current);
 
         object IEnumerator.Current => Current;
 
@@ -45,7 +45,7 @@ namespace NDimArray
             _array = array;
             _path = path;
             _priorities = Path.DimEnumerationPriorities;
-            _enumerationAxes = (NIndex.Unit(NIndex.Difference(Path.End, Path.Start)));
+            _enumerationAxes = Path.End.Difference(path.Start).Reduce();
             Reset();
         }
 
@@ -53,15 +53,15 @@ namespace NDimArray
             this(
                 array, 
                 new IndexPath(
-                    new NIndex(array.GetLowerBoundaries()),
-                    new NIndex(array.GetUpperBoundaries()),
+                    array.GetLowerBoundaries(),
+                    array.GetUpperBoundaries(),
                     EnumerationPriorities.CreateStandard(array.Rank)))
         { }
 
         public void Reset()
         {
             FirstEvaluated = false;
-            CurrentIndex = new NIndex(Path.Start.Indices.ToArray());
+            CurrentIndex = (int[])Path.Start.Clone();
         }
 
         public bool MoveNext()
@@ -96,7 +96,6 @@ namespace NDimArray
             {
                 CurrentIndex[currentIncrementationDimension] += step; //step next
             }
-
             
             bool ShouldMove()
             {

@@ -6,7 +6,7 @@ namespace NDimArray
 {
     public partial class NDimArray<T>
     {
-        public static void Fill(NDimArray<T> array, IPath path, Func<INIndex, T, T> fillRule)
+        public static void Fill(NDimArray<T> array, IPath path, Func<int[], T, T> fillRule)
         {
             // null checks
             if (array == null)
@@ -25,12 +25,12 @@ namespace NDimArray
         public static void Fill(NDimArray<T> array, IPath path, T value) =>
             Fill(array, path, (index, item) => value);
 
-        public static void Fill(NDimArray<T> array, Func<INIndex, T, T> fillRule) =>
+        public static void Fill(NDimArray<T> array, Func<int[], T, T> fillRule) =>
             Fill(
                 array,
                 new IndexPath(
-                    new NIndex(array.GetLowerBoundaries()),
-                    new NIndex(array.GetUpperBoundaries()),
+                    array.GetLowerBoundaries(),
+                    array.GetUpperBoundaries(),
                     EnumerationPriorities.CreateStandard(array.Rank)),
                 fillRule);
 

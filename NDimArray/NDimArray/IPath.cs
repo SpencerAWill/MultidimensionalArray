@@ -2,8 +2,8 @@
 {
     public interface IPath
     {
-        INIndex Start { get; }
-        INIndex End { get; }
+        int[] Start { get; }
+        int[] End { get; }
         IEnumerationPriorities DimEnumerationPriorities { get; }
 
         /// <summary>

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 namespace NDimArray
 {
-    public interface INDimArray<T> : IEnumerable<T>, IEnumerable<Tuple<INIndex, T>>
+    public interface IReadOnlyNDimArray<T> : 
+        IEnumerable<T>, 
+        IEnumerable<Tuple<int[], T>>
     {
         int Rank { get; }
         int Length { get; }
@@ -13,17 +15,17 @@ namespace NDimArray
         bool IsReadOnly { get; }
 
         T this[params int[] index] { get; }
-        T this[INIndex index] { get; }
         T GetValue(params int[] index);
-        T GetValue(INIndex index);
-
+        bool ValidIndex(params int[] index);
         int GetLength(int dimension);
         int GetLowerBound(int dimension);
         int GetUpperBound(int dimension);
     }
 
-    public interface IReadOnlyNDimArray<T> : INDimArray<T>
+    public interface INDimArray<T> : IReadOnlyNDimArray<T>
     {
+        new T this[params int[] index] { get; set; }
         new bool IsReadOnly { get; }
+        void SetValue(T value, params int[] index);
     }
 }
