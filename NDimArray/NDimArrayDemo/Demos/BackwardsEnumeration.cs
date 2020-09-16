@@ -23,8 +23,8 @@ namespace NDimArrayDemo.Demos
         {
             Array.Enumerate(
                 new IndexPath(
-                    new NIndex(Array.GetUpperBoundaries()),
-                    new NIndex(Array.GetLowerBoundaries()),
+                    Array.GetUpperBoundaries(),
+                    Array.GetLowerBoundaries(),
                     EnumerationPriorities.CreateStandard(Array.Rank)
                     ),
                 (index, item) => Console.WriteLine($"[{String.Join(", ", index)}]: {item}"));
